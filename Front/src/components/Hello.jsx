@@ -1,7 +1,5 @@
-import React from 'react';
+import React from "react";
 
-const Hello = () => {
-    return <span>Hello world</span>
+export default function Hello({ title }) {
+	return <span>Hello, {title}</span>;
 }
-
-export default Hello
