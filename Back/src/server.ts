@@ -56,8 +56,12 @@ io.on("connection", socket => {
 		} else if (number === magicNumber.toString()) {
 			const winner = players.find(player => player.nickname === currPlayer);
 			winner.score += 1;
-			magicNumber = generateMagic();
-			io.emit("event::nextRound", { players });
+			if (winner.score !== 3) {
+				magicNumber = generateMagic();
+				io.emit("event::nextRound", { players });
+			} else {
+				io.emit("event::gameOver", { winner });
+			}
 		}
 	});
 

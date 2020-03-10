@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { toaster } from "evergreen-ui";
 
-const MagicNumber = ({ io, players, setPlayers }) => {
+const MagicNumber = ({ io, players, setPlayers, setGameStarted, setIsWaiting }) => {
 	const [numberProposal, setNumberProposal] = useState("");
 	const [previousProposal, setPreviousProposal] = useState("");
 	const [hint, setHint] = useState("");
@@ -28,6 +28,14 @@ const MagicNumber = ({ io, players, setPlayers }) => {
 	io.on("event::nextRound", payload => {
 		setRound(round + 1);
 		setPlayers(payload.players);
+	});
+
+	io.on("event::gameOver", payload => {
+		toaster.success(`${payload.winner.nickname} win the game`, {
+			id: "game-over",
+		});
+		setGameStarted(false);
+		setIsWaiting(false);
 	});
 
 	return (

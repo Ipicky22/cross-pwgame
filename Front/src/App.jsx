@@ -32,7 +32,15 @@ const App = () => {
 
 	function renderScreen() {
 		if (isGameStarted === true) {
-			return <MagicNumber io={io} players={players} setPlayers={setPlayers} />;
+			return (
+				<MagicNumber
+					io={io}
+					players={players}
+					setPlayers={setPlayers}
+					setGameStarted={setGameStarted}
+					setIsWaiting={setIsWaiting}
+				/>
+			);
 		} else {
 			if (isWaiting === true) {
 				return <WaitPlayer />;
