@@ -11,6 +11,7 @@ const io = socketIO("http://10.0.2.1:3000");
 const App = () => {
 	const [isGameStarted, setGameStarted] = useState(false);
 	const [isWaiting, setIsWaiting] = useState(false);
+	const [players, setPlayers] = useState([]);
 
 	io.on("event::gameFull", () => {
 		toaster.warning("Game is full");
@@ -21,16 +22,17 @@ const App = () => {
 		setIsWaiting(true);
 	});
 
-	io.on("event::gameStart", () => {
+	io.on("event::gameStart", payload => {
 		setGameStarted(true);
 		toaster.success("Game started", {
 			id: "game-started",
 		});
+		setPlayers(payload.players);
 	});
 
 	function renderScreen() {
 		if (isGameStarted === true) {
-			return <MagicNumber io={io} />;
+			return <MagicNumber io={io} players={players} setPlayers={setPlayers} />;
 		} else {
 			if (isWaiting === true) {
 				return <WaitPlayer />;

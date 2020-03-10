@@ -10,11 +10,15 @@ const PORT = process.env.PORT;
 const app = express();
 const server = createServer(app);
 const io = socketIO(server);
-let players: string[] = [];
-let magicNumber: number = Math.floor(Math.random() * 1337);
-let winner: string;
 
-console.log(magicNumber);
+let generateMagic = () => {
+	const magic: number = Math.floor(Math.random() * 1337);
+	console.log(magic);
+	return magic;
+};
+
+let players: any[] = [];
+let magicNumber: number = generateMagic();
 
 app.get("/", (_, res) => {
 	res.send("hello fellows");
@@ -29,14 +33,13 @@ io.on("connection", socket => {
 			return;
 		}
 
-		players.push(payload.nickname);
+		players.push({ nickname: payload.nickname, score: 0 });
 		currPlayer = payload.nickname;
 
 		console.log(`Player ${payload.nickname} joined`);
-		console.log(`Players: ${players}`);
 
 		if (players.length === 2) {
-			io.emit("event::gameStart");
+			io.emit("event::gameStart", { players });
 		} else {
 			socket.emit("event::waitingPlayer");
 		}
@@ -51,25 +54,22 @@ io.on("connection", socket => {
 		} else if (number > magicNumber) {
 			socket.emit("event::isLess");
 		} else if (number === magicNumber.toString()) {
-			nextRound();
+			const winner = players.find(player => player.nickname === currPlayer);
+			winner.score += 1;
+			magicNumber = generateMagic();
+			io.emit("event::nextRound", { players });
 		}
 	});
 
 	socket.on("disconnect", () => {
 		if (currPlayer !== undefined) {
-			players = players.filter((player: any) => player !== currPlayer);
+			players = players.filter((player: any) => player.nickname !== currPlayer);
 			console.log(`Player ${currPlayer} left game`);
 			io.emit("event::waitingPlayer");
-			magicNumber = Math.floor(Math.random() * 1337);
-			console.log(magicNumber);
+			magicNumber = generateMagic();
 		}
 	});
 });
-
-const nextRound = () => {
-	magicNumber = Math.floor(Math.random() * 1337);
-	io.emit("event::nextRound", { nickname });
-};
 
 server.listen(PORT, () => {
 	console.log("Server is ready to use");

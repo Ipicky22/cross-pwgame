@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { toaster } from "evergreen-ui";
 
-const MagicNumber = ({ io }) => {
+const MagicNumber = ({ io, players, setPlayers }) => {
 	const [numberProposal, setNumberProposal] = useState("");
 	const [previousProposal, setPreviousProposal] = useState("");
 	const [hint, setHint] = useState("");
@@ -25,21 +25,26 @@ const MagicNumber = ({ io }) => {
 		setHint(`Less than ${previousProposal}`);
 	});
 
-	io.on("event::nextRound", () => {
+	io.on("event::nextRound", payload => {
 		setRound(round + 1);
+		setPlayers(payload.players);
 	});
 
 	return (
 		<div className="field">
 			<div>Round {round}</div>
-			<div>Nickanem1 score1 : score2 Nickanem2</div>
-			<div>{hint}</div>
+			<div>
+				{players.length === 2
+					? `${players[0].nickname} ${players[0].score} - ${players[1].score} ${players[1].nickname}`
+					: null}
+			</div>
 			<div className="control">
 				<input className="input" onChange={handleNumberProposal} value={numberProposal} />
+				<div>{hint}</div>
 			</div>
 			<div className="control">
 				<a className="button is-info" onClick={sendNumberProposal}>
-					Send Your Number
+					Check
 				</a>
 			</div>
 		</div>

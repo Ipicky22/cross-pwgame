@@ -1,5 +1,5 @@
 import React from "react";
 
 export default function Hello() {
-	return <span>En attente d'un joueur</span>;
+	return <span>Waiting for another player...</span>;
 }
