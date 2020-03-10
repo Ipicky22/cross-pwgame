@@ -10,16 +10,18 @@ const PORT = process.env.PORT;
 const app = express();
 const server = createServer(app);
 const io = socketIO(server);
-let players = [];
-let magicNumber: number;
+let players: string[] = [];
+let magicNumber: number = Math.floor(Math.random() * 1337);
 let winner: string;
+
+console.log(magicNumber);
 
 app.get("/", (_, res) => {
 	res.send("hello fellows");
 });
 
 io.on("connection", socket => {
-	console.log("new connection");
+	let currPlayer: any;
 
 	socket.on("event::initialize", payload => {
 		if (players.length >= 2) {
@@ -28,11 +30,12 @@ io.on("connection", socket => {
 		}
 
 		players.push(payload.nickname);
+		currPlayer = payload.nickname;
 
 		console.log(`Player ${payload.nickname} joined`);
+		console.log(`Players: ${players}`);
 
 		if (players.length === 2) {
-			magicNumber = Math.floor(Math.random() * 1337);
 			io.emit("event::gameStart");
 		} else {
 			socket.emit("event::waitingPlayer");
@@ -41,25 +44,33 @@ io.on("connection", socket => {
 
 	socket.on("event::checkNumber", payload => {
 		const number = payload.number;
-
-		if (number === magicNumber) {
-			winner = payload.nickname;
-			socket.emit("event::gameStop");
-			return;
-		}
-
-		if (number > magicNumber) {
-			socket.emit("event::isMore");
-			return;
-		}
+		console.log(`${currPlayer} try ${number}`);
 
 		if (number < magicNumber) {
+			socket.emit("event::isMore");
+		} else if (number > magicNumber) {
 			socket.emit("event::isLess");
-			return;
+		} else if (number === magicNumber.toString()) {
+			nextRound();
+		}
+	});
+
+	socket.on("disconnect", () => {
+		if (currPlayer !== undefined) {
+			players = players.filter((player: any) => player !== currPlayer);
+			console.log(`Player ${currPlayer} left game`);
+			io.emit("event::waitingPlayer");
+			magicNumber = Math.floor(Math.random() * 1337);
+			console.log(magicNumber);
 		}
 	});
 });
 
+const nextRound = () => {
+	magicNumber = Math.floor(Math.random() * 1337);
+	io.emit("event::nextRound", { nickname });
+};
+
 server.listen(PORT, () => {
-	console.log("Server ready at ...");
+	console.log("Server is ready to use");
 });
