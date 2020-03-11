@@ -5,8 +5,7 @@ import MagicNumber from "./components/MagicNumber";
 import WaitPlayer from "./components/WaitPlayers";
 import { toaster } from "evergreen-ui";
 
-// const io = socketIO("http://localhost:3000");
-const io = socketIO("http://10.0.2.1:3000");
+const io = socketIO("http://localhost:3000");
 
 const App = () => {
 	const [isGameStarted, setGameStarted] = useState(false);
