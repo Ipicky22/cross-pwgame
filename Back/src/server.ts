@@ -11,11 +11,13 @@ const app = express();
 const server = createServer(app);
 const io = socketIO(server);
 
-let generateMagic = () => {
+/*eslint-disable */
+let generateMagic = function(): number {
 	const magic: number = Math.floor(Math.random() * 1337);
 	console.log(magic);
 	return magic;
 };
+/*eslint-enable */
 
 let players: any[] = [];
 let magicNumber: number = generateMagic();
